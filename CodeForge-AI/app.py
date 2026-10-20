@@ -62,7 +62,7 @@ with st.sidebar:
     st.markdown("### 👑 Get CodeForge PRO")
     st.markdown("""
     - 🚀 **আনলিমিটেড** কোড জেনারেশন
-    - 🧠 **High-Logic 70B** ফুলস্ট্যাক মোড
+    - 🧠 **High-Logic Pro** ফুলস্ট্যাক মোড
     - 🐞 ইনস্ট্যান্ট বাগ সলভার ও প্রজেক্ট ক্রিয়েটর
     """)
     st.info("💳 মাত্র ২৯৯ টাকা / মাস")
@@ -88,7 +88,7 @@ for msg in st.session_state.chat_history:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-# ইনপউট হ্যান্ডলার
+# ইনপুট হ্যান্ডলার
 if user_input := st.chat_input("কোড লিখতে বলুন বা আপনার সমস্যাটি জানান..."):
     if not st.session_state.is_pro and st.session_state.usage_count >= DAILY_FREE_LIMIT:
         st.error("⚠️ আপনার আজকের ১৫টি ফ্রি রিকোয়েস্ট শেষ! আনলিমিটেড ব্যবহার করতে সাইডবার থেকে PRO তে আপগ্রেড করুন।")
@@ -98,25 +98,24 @@ if user_input := st.chat_input("কোড লিখতে বলুন বা �
         with st.chat_message("user"):
             st.markdown(user_input)
 
-        # Groq Client (Llama 3.3 70B)
+        # Groq Client
         client = OpenAI(
             api_key=API_KEY, 
             base_url="https://api.groq.com/openai/v1"
         )
         
         system_prompt = (
-            "You are CodeForge AI, an elite Staff Principal Software Engineer. "
-            "You write world-class, clean, production-ready, highly optimized code. "
-            "Always include complete runnable code, avoid lazy placeholders, "
-            "provide step-by-step logic, and format code blocks beautifully with language tags. "
-            "Support Bangla and English fluently."
+            "You are CodeForge AI, an expert software developer and technical assistant. "
+            "Write high quality, bug-free, clean code with explanations. "
+            "Help with all programming tasks accurately. Speak Bangla or English."
         )
 
         with st.chat_message("assistant"):
             with st.spinner("⚡ CodeForge কোড তৈরি করছে..."):
+                # ১০০% কাজ করবে এমন স্ট্যাবল মডেল
                 try:
                     response = client.chat.completions.create(
-                        model="llama-3.3-70b-versatile",
+                        model="llama-3.1-8b-instant",
                         messages=[
                             {"role": "system", "content": system_prompt},
                             *[{"role": m["role"], "content": m["content"]} for m in st.session_state.chat_history]
