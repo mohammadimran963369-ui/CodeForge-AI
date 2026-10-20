@@ -62,7 +62,7 @@ with st.sidebar:
     st.markdown("### 👑 Get CodeForge PRO")
     st.markdown("""
     - 🚀 **আনলিমিটেড** কোড জেনারেশন
-    - 🧠 **DeepSeek R1 High-Logic** ফুলস্ট্যাক মোড
+    - 🧠 **High-Logic 70B** ফুলস্ট্যাক মোড
     - 🐞 ইনস্ট্যান্ট বাগ সলভার ও প্রজেক্ট ক্রিয়েটর
     """)
     st.info("💳 মাত্র ২৯৯ টাকা / মাস")
@@ -88,7 +88,7 @@ for msg in st.session_state.chat_history:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-# ইনপুট এবং সুপার পাওয়ারফুল DeepSeek R1 কল
+# ইনপউট হ্যান্ডলার
 if user_input := st.chat_input("কোড লিখতে বলুন বা আপনার সমস্যাটি জানান..."):
     if not st.session_state.is_pro and st.session_state.usage_count >= DAILY_FREE_LIMIT:
         st.error("⚠️ আপনার আজকের ১৫টি ফ্রি রিকোয়েস্ট শেষ! আনলিমিটেড ব্যবহার করতে সাইডবার থেকে PRO তে আপগ্রেড করুন।")
@@ -98,14 +98,14 @@ if user_input := st.chat_input("কোড লিখতে বলুন বা �
         with st.chat_message("user"):
             st.markdown(user_input)
 
-        # Groq Client (Free & Super Fast DeepSeek R1 Engine)
+        # Groq Client (Llama 3.3 70B)
         client = OpenAI(
             api_key=API_KEY, 
             base_url="https://api.groq.com/openai/v1"
         )
         
         system_prompt = (
-            "You are CodeForge AI, an elite Staff Principal Software Engineer powered by DeepSeek R1. "
+            "You are CodeForge AI, an elite Staff Principal Software Engineer. "
             "You write world-class, clean, production-ready, highly optimized code. "
             "Always include complete runnable code, avoid lazy placeholders, "
             "provide step-by-step logic, and format code blocks beautifully with language tags. "
@@ -113,10 +113,10 @@ if user_input := st.chat_input("কোড লিখতে বলুন বা �
         )
 
         with st.chat_message("assistant"):
-            with st.spinner("⚡ DeepSeek R1 কোড এনালাইসিস করছে..."):
+            with st.spinner("⚡ CodeForge কোড তৈরি করছে..."):
                 try:
                     response = client.chat.completions.create(
-                        model="deepseek-r1-distill-llama-70b",
+                        model="llama-3.3-70b-versatile",
                         messages=[
                             {"role": "system", "content": system_prompt},
                             *[{"role": m["role"], "content": m["content"]} for m in st.session_state.chat_history]
@@ -124,11 +124,6 @@ if user_input := st.chat_input("কোড লিখতে বলুন বা �
                         temperature=0.3
                     )
                     reply = response.choices[0].message.content
-                    
-                    # ডিপসিক আর-১ এর থিংকিং ট্যাগ ক্লিন করা
-                    if "</think>" in reply:
-                        reply = reply.split("</think>")[-1].strip()
-                        
                     st.markdown(reply)
                     st.session_state.chat_history.append({"role": "assistant", "content": reply})
                 except Exception as e:
